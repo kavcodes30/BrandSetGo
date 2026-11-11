@@ -1,0 +1,28 @@
+# Render blueprint: one web service, one disk, key supplied by the dashboard.
+services:
+  - type: web
+    name: brandsetgo
+    runtime: python
+    plan: starter
+    buildCommand: pip install --no-cache-dir -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: SARVAM_API_KEY
+        sync: false            # paste it in the Render dashboard, never in git
+      - key: SECRET_KEY
+        generateValue: true    # sessions survive restarts and deploys
+      - key: COOKIE_SECURE
+        value: "true"          # HTTPS only
+      - key: FIRST_USER_IS_ADMIN
+        value: "true"          # set false after you have created your admin
+      - key: PUBLIC_BASE_URL
+        sync: false            # e.g. https://brandsetgo.onrender.com
+      - key: DATABASE_URL
+        value: sqlite:////var/data/brandsetgo.db
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+    disk:
+      name: brandsetgo-data
+      mountPath: /var/data
+      sizeGB: 1

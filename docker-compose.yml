@@ -1,0 +1,21 @@
+services:
+  brandsetgo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////data/brandsetgo.db
+      FIRST_USER_IS_ADMIN: "true"
+      # SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+    volumes:
+      - brandsetgo-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  brandsetgo-data:
